@@ -38,6 +38,21 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       robot.moveMouse(currXPos + arg1, currYPos);
       break;
     }
+    case commands.SQUARE: {
+      let mouseXPos = currXPos;
+      let mouseYPos = currYPos;
+
+      robot.mouseToggle("down");
+
+      robot.moveMouseSmooth(mouseXPos, (mouseYPos -= arg1));
+      robot.moveMouseSmooth((mouseXPos += arg1), mouseYPos);
+      robot.moveMouseSmooth(mouseXPos, (mouseYPos += arg1));
+      robot.moveMouseSmooth((mouseXPos -= arg1), mouseYPos);
+
+      robot.mouseToggle("up");
+
+      break;
+    }
     default:
       break;
   }
