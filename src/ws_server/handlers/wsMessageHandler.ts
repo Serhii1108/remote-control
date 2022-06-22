@@ -49,7 +49,6 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       robot.moveMouseSmooth((currXPos -= arg1), currYPos);
 
       robot.mouseToggle("up");
-
       break;
     }
     case commands.RECTANGLE: {
@@ -64,7 +63,19 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       robot.moveMouseSmooth((currXPos -= arg2), currYPos);
 
       robot.mouseToggle("up");
+      break;
+    }
+    case commands.CIRCLE: {
+      const radius = arg1;
+      robot.mouseToggle("down");
 
+      const STEP = 0.01;
+      for (let i = 0; i <= Math.PI * 2; i += STEP) {
+        const x = mouseXPos + radius * Math.cos(i) - radius;
+        const y = mouseYPos + radius * Math.sin(i);
+        robot.dragMouse(x, y);
+      }
+      robot.mouseToggle("up");
       break;
     }
     default:
