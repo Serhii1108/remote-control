@@ -13,41 +13,55 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
   const arg1 = Number(splitData[1]);
   const arg2 = Number(splitData[2]);
 
-  const currYPos = robot.getMousePos().y;
-  const currXPos = robot.getMousePos().x;
+  const mouseYPos = robot.getMousePos().y;
+  const mouseXPos = robot.getMousePos().x;
 
   switch (command) {
     case commands.MOUSE_POS: {
-      const { x, y } = robot.getMousePos();
-      ws.send(`mouse_position ${x}px,${y}px`);
+      ws.send(`mouse_position ${mouseXPos}px,${mouseYPos}px`);
       break;
     }
     case commands.MOUSE_UP: {
-      robot.moveMouse(currXPos, currYPos - arg1);
+      robot.moveMouse(mouseXPos, mouseYPos - arg1);
       break;
     }
     case commands.MOUSE_DOWN: {
-      robot.moveMouse(currXPos, currYPos + arg1);
+      robot.moveMouse(mouseXPos, mouseYPos + arg1);
       break;
     }
     case commands.MOUSE_LEFT: {
-      robot.moveMouse(currXPos - arg1, currYPos);
+      robot.moveMouse(mouseXPos - arg1, mouseYPos);
       break;
     }
     case commands.MOUSE_RIGHT: {
-      robot.moveMouse(currXPos + arg1, currYPos);
+      robot.moveMouse(mouseXPos + arg1, mouseYPos);
       break;
     }
     case commands.SQUARE: {
-      let mouseXPos = currXPos;
-      let mouseYPos = currYPos;
+      let currXPos = mouseXPos;
+      let currYPos = mouseYPos;
 
       robot.mouseToggle("down");
 
-      robot.moveMouseSmooth(mouseXPos, (mouseYPos -= arg1));
-      robot.moveMouseSmooth((mouseXPos += arg1), mouseYPos);
-      robot.moveMouseSmooth(mouseXPos, (mouseYPos += arg1));
-      robot.moveMouseSmooth((mouseXPos -= arg1), mouseYPos);
+      robot.moveMouseSmooth(currXPos, (currYPos -= arg1));
+      robot.moveMouseSmooth((currXPos += arg1), currYPos);
+      robot.moveMouseSmooth(currXPos, (currYPos += arg1));
+      robot.moveMouseSmooth((currXPos -= arg1), currYPos);
+
+      robot.mouseToggle("up");
+
+      break;
+    }
+    case commands.RECTANGLE: {
+      let currXPos = mouseXPos;
+      let currYPos = mouseYPos;
+
+      robot.mouseToggle("down");
+
+      robot.moveMouseSmooth(currXPos, (currYPos -= arg1));
+      robot.moveMouseSmooth((currXPos += arg2), currYPos);
+      robot.moveMouseSmooth(currXPos, (currYPos += arg1));
+      robot.moveMouseSmooth((currXPos -= arg2), currYPos);
 
       robot.mouseToggle("up");
 
