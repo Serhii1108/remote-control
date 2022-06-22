@@ -1,4 +1,4 @@
-/* eslint-disable*/
+/* eslint-disable no-magic-numbers */
 
 export const enum statusCodes {
   SUCCESS = 200,
