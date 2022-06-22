@@ -11,7 +11,7 @@ export const createWebsocketServer = (port: number) => {
   wss.on("connection", (ws) => {
     console.log("Websocket connected!");
 
-    ws.on("message", wsMessageHandler);
+    ws.on("message", (data) => wsMessageHandler(ws, data));
   });
 
   wss.on("error", (err) => {

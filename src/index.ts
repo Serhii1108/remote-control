@@ -1,8 +1,5 @@
 import "dotenv/config";
 
-import Jimp from "jimp";
-import robot from "robotjs";
-
 import { httpServer } from "./http_server/index.js";
 import { createWebsocketServer } from "./ws_server/server.js";
 
