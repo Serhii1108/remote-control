@@ -3,6 +3,7 @@ import Jimp from "jimp";
 import robot from "robotjs";
 
 import { commands } from "../../constants.js";
+import { swapRedAndBlueChannel } from "../utils/colors.js";
 
 export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
   const data = rawData.toString();
@@ -76,6 +77,29 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
         robot.dragMouse(x, y);
       }
       robot.mouseToggle("up");
+      break;
+    }
+    case commands.SCREEN: {
+      const bmp = robot.screen.capture(
+        mouseXPos - 100,
+        mouseYPos - 100,
+        200,
+        200
+      );
+
+      swapRedAndBlueChannel(bmp);
+
+      const img = new Jimp({
+        data: bmp.image,
+        width: bmp.width,
+        height: bmp.height,
+      });
+
+      img.getBase64Async(Jimp.MIME_PNG).then((base64String) => {
+        ws.send(
+          `prnt_scrn ${base64String.slice(base64String.indexOf(",") + 1)}`
+        );
+      });
       break;
     }
     default:
