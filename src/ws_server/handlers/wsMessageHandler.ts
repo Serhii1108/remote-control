@@ -1,11 +1,12 @@
-import { RawData, WebSocket } from "ws";
+import { Duplex } from "stream";
+import { RawData } from "ws";
 import Jimp from "jimp";
 import robot from "robotjs";
 
 import { commands } from "../../constants.js";
 import { swapRedAndBlueChannel } from "../utils/colors.js";
 
-export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
+export const wsMessageHandler = (wsStream: Duplex, rawData: RawData) => {
   const data = rawData.toString();
   const splitData = data.split(" ");
 
@@ -19,31 +20,31 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
 
   switch (command) {
     case commands.MOUSE_POS: {
-      ws.send(`mouse_position ${mouseXPos},${mouseYPos} \0`);
+      wsStream.write(`mouse_position ${mouseXPos},${mouseYPos} \0`);
       break;
     }
     case commands.MOUSE_UP: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos, mouseYPos - arg1);
       break;
     }
     case commands.MOUSE_DOWN: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos, mouseYPos + arg1);
       break;
     }
     case commands.MOUSE_LEFT: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos - arg1, mouseYPos);
       break;
     }
     case commands.MOUSE_RIGHT: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos + arg1, mouseYPos);
       break;
     }
     case commands.SQUARE: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
 
       let currXPos = mouseXPos;
       let currYPos = mouseYPos;
@@ -59,7 +60,7 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       break;
     }
     case commands.RECTANGLE: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
 
       let currXPos = mouseXPos;
       let currYPos = mouseYPos;
@@ -75,7 +76,7 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       break;
     }
     case commands.CIRCLE: {
-      ws.send(`${command} \0`);
+      wsStream.write(`${command} \0`);
 
       const radius = arg1;
       robot.mouseToggle("down");
@@ -108,7 +109,7 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
 
       img.getBufferAsync(Jimp.MIME_PNG).then((buffer) => {
         const base64String = buffer.toString("base64");
-        ws.send(`prnt_scrn ${base64String} \0`);
+        wsStream.write(`prnt_scrn ${base64String} \0`);
       });
       break;
     }
