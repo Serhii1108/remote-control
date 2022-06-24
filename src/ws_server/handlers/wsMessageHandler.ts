@@ -5,6 +5,7 @@ import robot from "robotjs";
 
 import { commands } from "../../constants.js";
 import { swapRedAndBlueChannel } from "../utils/colors.js";
+import { drawCircle, drawRectangle, drawSquare } from "../utils/drawFigures.js";
 
 export const wsMessageHandler = (wsStream: Duplex, rawData: RawData) => {
   const data = rawData.toString();
@@ -45,66 +46,34 @@ export const wsMessageHandler = (wsStream: Duplex, rawData: RawData) => {
     }
     case commands.SQUARE: {
       wsStream.write(`${command} \0`);
-
-      let currXPos = mouseXPos;
-      let currYPos = mouseYPos;
-
-      robot.mouseToggle("down");
-
-      robot.moveMouseSmooth(currXPos, (currYPos -= arg1));
-      robot.moveMouseSmooth((currXPos += arg1), currYPos);
-      robot.moveMouseSmooth(currXPos, (currYPos += arg1));
-      robot.moveMouseSmooth((currXPos -= arg1), currYPos);
-
-      robot.mouseToggle("up");
+      drawSquare(mouseXPos, mouseYPos, arg1);
       break;
     }
     case commands.RECTANGLE: {
       wsStream.write(`${command} \0`);
-
-      let currXPos = mouseXPos;
-      let currYPos = mouseYPos;
-
-      robot.mouseToggle("down");
-
-      robot.moveMouseSmooth(currXPos, (currYPos -= arg1));
-      robot.moveMouseSmooth((currXPos += arg2), currYPos);
-      robot.moveMouseSmooth(currXPos, (currYPos += arg1));
-      robot.moveMouseSmooth((currXPos -= arg2), currYPos);
-
-      robot.mouseToggle("up");
+      drawRectangle(mouseXPos, mouseYPos, arg1, arg2);
       break;
     }
     case commands.CIRCLE: {
       wsStream.write(`${command} \0`);
-
-      const radius = arg1;
-      robot.mouseToggle("down");
-
-      const STEP = 0.01;
-      for (let i = 0; i <= Math.PI * 2; i += STEP) {
-        const x = mouseXPos + radius * Math.cos(i) - radius;
-        const y = mouseYPos + radius * Math.sin(i);
-        robot.dragMouse(x, y);
-      }
-      robot.mouseToggle("up");
+      drawCircle(mouseXPos, mouseYPos, arg1);
       break;
     }
     case commands.SCREEN: {
       const imgSize = 200;
-      const bmp = robot.screen.capture(
+      const bitmap = robot.screen.capture(
         mouseXPos - imgSize / 2,
         mouseYPos - imgSize / 2,
         imgSize,
         imgSize
       );
 
-      swapRedAndBlueChannel(bmp);
+      swapRedAndBlueChannel(bitmap);
 
       const img = new Jimp({
-        data: bmp.image,
-        width: bmp.width,
-        height: bmp.height,
+        data: bitmap.image,
+        width: bitmap.width,
+        height: bitmap.height,
       });
 
       img.getBufferAsync(Jimp.MIME_PNG).then((buffer) => {
