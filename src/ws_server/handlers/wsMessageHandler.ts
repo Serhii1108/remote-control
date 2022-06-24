@@ -19,26 +19,32 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
 
   switch (command) {
     case commands.MOUSE_POS: {
-      ws.send(`mouse_position ${mouseXPos}px,${mouseYPos}px`);
+      ws.send(`mouse_position ${mouseXPos},${mouseYPos} \0`);
       break;
     }
     case commands.MOUSE_UP: {
+      ws.send(`${command} \0`);
       robot.moveMouse(mouseXPos, mouseYPos - arg1);
       break;
     }
     case commands.MOUSE_DOWN: {
+      ws.send(`${command} \0`);
       robot.moveMouse(mouseXPos, mouseYPos + arg1);
       break;
     }
     case commands.MOUSE_LEFT: {
+      ws.send(`${command} \0`);
       robot.moveMouse(mouseXPos - arg1, mouseYPos);
       break;
     }
     case commands.MOUSE_RIGHT: {
+      ws.send(`${command} \0`);
       robot.moveMouse(mouseXPos + arg1, mouseYPos);
       break;
     }
     case commands.SQUARE: {
+      ws.send(`${command} \0`);
+
       let currXPos = mouseXPos;
       let currYPos = mouseYPos;
 
@@ -53,6 +59,8 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       break;
     }
     case commands.RECTANGLE: {
+      ws.send(`${command} \0`);
+
       let currXPos = mouseXPos;
       let currYPos = mouseYPos;
 
@@ -67,6 +75,8 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       break;
     }
     case commands.CIRCLE: {
+      ws.send(`${command} \0`);
+
       const radius = arg1;
       robot.mouseToggle("down");
 
@@ -80,11 +90,12 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
       break;
     }
     case commands.SCREEN: {
+      const imgSize = 200;
       const bmp = robot.screen.capture(
-        mouseXPos - 100,
-        mouseYPos - 100,
-        200,
-        200
+        mouseXPos - imgSize / 2,
+        mouseYPos - imgSize / 2,
+        imgSize,
+        imgSize
       );
 
       swapRedAndBlueChannel(bmp);
@@ -95,10 +106,9 @@ export const wsMessageHandler = (ws: WebSocket, rawData: RawData) => {
         height: bmp.height,
       });
 
-      img.getBase64Async(Jimp.MIME_PNG).then((base64String) => {
-        ws.send(
-          `prnt_scrn ${base64String.slice(base64String.indexOf(",") + 1)}`
-        );
+      img.getBufferAsync(Jimp.MIME_PNG).then((buffer) => {
+        const base64String = buffer.toString("base64");
+        ws.send(`prnt_scrn ${base64String} \0`);
       });
       break;
     }
