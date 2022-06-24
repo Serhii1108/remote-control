@@ -6,8 +6,13 @@ import robot from "robotjs";
 import { commands } from "../../constants.js";
 import { swapRedAndBlueChannel } from "../utils/colors.js";
 import { drawCircle, drawRectangle, drawSquare } from "../utils/drawFigures.js";
+import LogService from "../utils/log.service.js";
 
-export const wsMessageHandler = (wsStream: Duplex, rawData: RawData) => {
+export const wsMessageHandler = (
+  wsStream: Duplex,
+  rawData: RawData,
+  logService: LogService
+) => {
   const data = rawData.toString();
   const splitData = data.split(" ");
 
@@ -19,44 +24,55 @@ export const wsMessageHandler = (wsStream: Duplex, rawData: RawData) => {
   const mouseYPos = robot.getMousePos().y;
   const mouseXPos = robot.getMousePos().x;
 
+  const defAnswer = `${command} \0`;
+
   switch (command) {
     case commands.MOUSE_POS: {
-      wsStream.write(`mouse_position ${mouseXPos},${mouseYPos} \0`);
+      const answer = `mouse_position ${mouseXPos},${mouseYPos} \0`;
+      logService.log(command, answer);
+      wsStream.write(answer);
       break;
     }
     case commands.MOUSE_UP: {
-      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos, mouseYPos - arg1);
+      logService.log(command, defAnswer, true);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.MOUSE_DOWN: {
-      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos, mouseYPos + arg1);
+      logService.log(command, defAnswer, true);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.MOUSE_LEFT: {
-      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos - arg1, mouseYPos);
+      logService.log(command, defAnswer, true);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.MOUSE_RIGHT: {
-      wsStream.write(`${command} \0`);
       robot.moveMouse(mouseXPos + arg1, mouseYPos);
+      logService.log(command, defAnswer, true);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.SQUARE: {
-      wsStream.write(`${command} \0`);
       drawSquare(mouseXPos, mouseYPos, arg1);
+      logService.log(command, defAnswer);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.RECTANGLE: {
-      wsStream.write(`${command} \0`);
       drawRectangle(mouseXPos, mouseYPos, arg1, arg2);
+      logService.log(command, defAnswer);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.CIRCLE: {
-      wsStream.write(`${command} \0`);
       drawCircle(mouseXPos, mouseYPos, arg1);
+      logService.log(command, defAnswer);
+      wsStream.write(defAnswer);
       break;
     }
     case commands.SCREEN: {
@@ -79,6 +95,7 @@ export const wsMessageHandler = (wsStream: Duplex, rawData: RawData) => {
       img.getBufferAsync(Jimp.MIME_PNG).then((buffer) => {
         const base64String = buffer.toString("base64");
         wsStream.write(`prnt_scrn ${base64String} \0`);
+        logService.log(command, defAnswer);
       });
       break;
     }

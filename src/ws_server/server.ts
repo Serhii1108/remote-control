@@ -1,16 +1,18 @@
 import { createWebSocketStream, WebSocketServer } from "ws";
 import { wsMessageHandler } from "./handlers/wsMessageHandler.js";
+import LogService from "./utils/log.service.js";
 
 export const createWebsocketServer = (port: number) => {
   const wss = new WebSocketServer({ port });
 
+  const logService = new LogService();
+
   wss.on("listening", () => {
-    console.log(`\nWebsocket server start on the ${port} port!`);
-    console.log("Waiting for connection...");
+    logService.wsListeningMessage(port);
   });
 
   wss.on("connection", (ws) => {
-    console.log("Websocket connected!");
+    logService.wsConnectedMessage();
 
     const wsStream = createWebSocketStream(ws, {
       decodeStrings: false,
@@ -18,7 +20,7 @@ export const createWebsocketServer = (port: number) => {
     });
 
     wsStream.on("data", (chunk) => {
-      wsMessageHandler(wsStream, chunk);
+      wsMessageHandler(wsStream, chunk, logService);
     });
   });
 
