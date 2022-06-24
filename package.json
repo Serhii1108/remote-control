@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "tsc && node ./dist/index.js",
+    "start:prod": "tsc && node ./dist/index.js",
     "start:dev": "nodemon ./src/index.ts",
+    "build": "tsc",
     "lint": "npx eslint \"src/**/*.ts\" --fix",
     "format": "npx prettier \"src/**/*.ts\" --write"
   },
