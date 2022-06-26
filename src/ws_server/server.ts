@@ -22,10 +22,19 @@ export const createWebsocketServer = (port: number) => {
     wsStream.on("data", (chunk) => {
       wsMessageHandler(wsStream, chunk, logService);
     });
+
+    wsStream.on("error", () => {
+      logService.error();
+
+      wsStream.destroy();
+      wss.close();
+      process.exit();
+    });
   });
 
-  wss.on("error", (err) => {
-    console.error(err);
+  wss.on("error", () => {
+    logService.error();
+
     wss.close();
     process.exit();
   });

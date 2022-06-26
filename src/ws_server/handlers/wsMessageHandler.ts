@@ -26,80 +26,84 @@ export const wsMessageHandler = (
 
   const defAnswer = `${command} \0`;
 
-  switch (command) {
-    case commands.MOUSE_POS: {
-      const answer = `mouse_position ${mouseXPos},${mouseYPos} \0`;
-      logService.log(command, answer);
-      wsStream.write(answer);
-      break;
-    }
-    case commands.MOUSE_UP: {
-      robot.moveMouse(mouseXPos, mouseYPos - arg1);
-      logService.log(command, defAnswer, true);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.MOUSE_DOWN: {
-      robot.moveMouse(mouseXPos, mouseYPos + arg1);
-      logService.log(command, defAnswer, true);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.MOUSE_LEFT: {
-      robot.moveMouse(mouseXPos - arg1, mouseYPos);
-      logService.log(command, defAnswer, true);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.MOUSE_RIGHT: {
-      robot.moveMouse(mouseXPos + arg1, mouseYPos);
-      logService.log(command, defAnswer, true);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.SQUARE: {
-      drawSquare(mouseXPos, mouseYPos, arg1);
-      logService.log(command, defAnswer);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.RECTANGLE: {
-      drawRectangle(mouseXPos, mouseYPos, arg1, arg2);
-      logService.log(command, defAnswer);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.CIRCLE: {
-      drawCircle(mouseXPos, mouseYPos, arg1);
-      logService.log(command, defAnswer);
-      wsStream.write(defAnswer);
-      break;
-    }
-    case commands.SCREEN: {
-      const imgSize = 200;
-      const bitmap = robot.screen.capture(
-        mouseXPos - imgSize / 2,
-        mouseYPos - imgSize / 2,
-        imgSize,
-        imgSize
-      );
-
-      swapRedAndBlueChannel(bitmap);
-
-      const img = new Jimp({
-        data: bitmap.image,
-        width: bitmap.width,
-        height: bitmap.height,
-      });
-
-      img.getBufferAsync(Jimp.MIME_PNG).then((buffer) => {
-        const base64String = buffer.toString("base64");
-        wsStream.write(`prnt_scrn ${base64String} \0`);
+  try {
+    switch (command) {
+      case commands.MOUSE_POS: {
+        const answer = `mouse_position ${mouseXPos},${mouseYPos} \0`;
+        logService.log(command, answer);
+        wsStream.write(answer);
+        break;
+      }
+      case commands.MOUSE_UP: {
+        robot.moveMouse(mouseXPos, mouseYPos - arg1);
+        logService.log(command, defAnswer, true);
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.MOUSE_DOWN: {
+        robot.moveMouse(mouseXPos, mouseYPos + arg1);
+        logService.log(command, defAnswer, true);
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.MOUSE_LEFT: {
+        robot.moveMouse(mouseXPos - arg1, mouseYPos);
+        logService.log(command, defAnswer, true);
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.MOUSE_RIGHT: {
+        robot.moveMouse(mouseXPos + arg1, mouseYPos);
+        logService.log(command, defAnswer, true);
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.SQUARE: {
+        drawSquare(mouseXPos, mouseYPos, arg1);
         logService.log(command, defAnswer);
-      });
-      break;
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.RECTANGLE: {
+        drawRectangle(mouseXPos, mouseYPos, arg1, arg2);
+        logService.log(command, defAnswer);
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.CIRCLE: {
+        drawCircle(mouseXPos, mouseYPos, arg1);
+        logService.log(command, defAnswer);
+        wsStream.write(defAnswer);
+        break;
+      }
+      case commands.SCREEN: {
+        const imgSize = 200;
+        const bitmap = robot.screen.capture(
+          mouseXPos - imgSize / 2,
+          mouseYPos - imgSize / 2,
+          imgSize,
+          imgSize
+        );
+
+        swapRedAndBlueChannel(bitmap);
+
+        const img = new Jimp({
+          data: bitmap.image,
+          width: bitmap.width,
+          height: bitmap.height,
+        });
+
+        img.getBufferAsync(Jimp.MIME_PNG).then((buffer) => {
+          const base64String = buffer.toString("base64");
+          wsStream.write(`prnt_scrn ${base64String} \0`);
+          logService.log(command, defAnswer);
+        });
+        break;
+      }
+      default:
+        break;
     }
-    default:
-      break;
+  } catch {
+    logService.error();
   }
 };

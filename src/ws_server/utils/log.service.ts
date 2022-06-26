@@ -4,6 +4,7 @@ export default class LogService {
   log(command: string, answer: string, logMouseCoord?: boolean) {
     console.log(`\n[LOG] Command: ${command}`);
     console.log(`[LOG] Answer: ${answer}`);
+    console.log(`[LOG] Status: success`);
 
     if (logMouseCoord) {
       const { x, y } = robot.getMousePos();
@@ -18,5 +19,9 @@ export default class LogService {
 
   wsConnectedMessage() {
     console.log("Websocket connected!");
+  }
+
+  error() {
+    console.error(`\n[ERROR] Unexpected error`);
   }
 }
